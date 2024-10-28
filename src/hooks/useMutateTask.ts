@@ -1,8 +1,8 @@
-import axios from 'axios'
-import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { Task } from '../types'
-import useStore from '../store'
-import { useError } from '../hooks/useError'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import useStore from "../store";
+import { Task } from "../types";
+import { useError } from "./useError";
 
 export const useMutateTask = () => {
   const queryClient = useQueryClient()
@@ -10,7 +10,7 @@ export const useMutateTask = () => {
   const resetEditedTask = useStore((state) => state.resetEditedTask)
 
   const createTaskMutation = useMutation(
-    (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) =>
+    (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => 
       axios.post<Task>(`${process.env.REACT_APP_API_URL}/tasks`, task),
     {
       onSuccess: (res) => {
@@ -24,9 +24,9 @@ export const useMutateTask = () => {
         if (err.response.data.message) {
           switchErrorHandling(err.response.data.message)
         } else {
-          switchErrorHandling(err.response.data)
+            switchErrorHandling(err.response.data)
         }
-      },
+      }
     }
   )
   const updateTaskMutation = useMutation(
@@ -34,31 +34,30 @@ export const useMutateTask = () => {
       axios.put<Task>(`${process.env.REACT_APP_API_URL}/tasks/${task.id}`, {
         title: task.title,
       }),
-    {
-      onSuccess: (res, variables) => {
-        const previousTasks = queryClient.getQueryData<Task[]>(['tasks'])
-        if (previousTasks) {
-          queryClient.setQueryData<Task[]>(
-            ['tasks'],
-            previousTasks.map((task) =>
-              task.id === variables.id ? res.data : task
+      {
+        onSuccess: (res, variables) => {
+          const previousTasks = queryClient.getQueryData<Task[]>(['tasks'])
+          if (previousTasks) {
+            queryClient.setQueryData<Task[]>(
+              ['tasks'],
+              previousTasks.map((task) => 
+                task.id === variables.id ? res.data : task
+              )
             )
-          )
+          }
+          resetEditedTask()
+        },
+        onError: (err: any) => {
+          if (err.response.data.message) {
+            switchErrorHandling(err.response.data.message)
+          } else {
+              switchErrorHandling(err.response.data)
+          }
         }
-        resetEditedTask()
-      },
-      onError: (err: any) => {
-        if (err.response.data.message) {
-          switchErrorHandling(err.response.data.message)
-        } else {
-          switchErrorHandling(err.response.data)
-        }
-      },
-    }
+      }
   )
   const deleteTaskMutation = useMutation(
-    (id: number) =>
-      axios.delete(`${process.env.REACT_APP_API_URL}/tasks/${id}`),
+    (id: number) => axios.delete(`${process.env.REACT_APP_API_URL}/tasks/${id}`),
     {
       onSuccess: (_, variables) => {
         const previousTasks = queryClient.getQueryData<Task[]>(['tasks'])
@@ -74,9 +73,9 @@ export const useMutateTask = () => {
         if (err.response.data.message) {
           switchErrorHandling(err.response.data.message)
         } else {
-          switchErrorHandling(err.response.data)
+            switchErrorHandling(err.response.data)
         }
-      },
+      }
     }
   )
   return {
